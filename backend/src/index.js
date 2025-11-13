@@ -14,7 +14,7 @@ const {
   NEO4J_USER,
   NEO4J_PASSWORD,
   PORT = 4000,
-  OLLAMA_HOST = "http://localhost:11434",
+  OLLAMA_HOST = "http://127.0.0.1:11434",
   OLLAMA_MODEL = "phi3",
 } = process.env;
 
