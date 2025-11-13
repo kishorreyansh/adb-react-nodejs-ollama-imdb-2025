@@ -15,7 +15,7 @@ export default function NLQuery() {
     setOutput("");
 
     try {
-      const base = import.meta.env.VITE_API_URL || "http://localhost:4000";
+      const base = import.meta.env.VITE_API_URL || "http://127.0.0.1:4000"; //127.0.0.1 instead of this give local host in othercase
       const resp = await fetch(`${base.replace(/\/$/, "")}/api/llm`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
