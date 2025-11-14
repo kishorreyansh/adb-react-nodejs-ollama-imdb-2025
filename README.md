@@ -18,6 +18,9 @@ bun install
 
 # Start the development server
 bun run dev
+
+# run below url
+http://localhost:3000/
 ```
 
 # Setup Backend
@@ -60,7 +63,14 @@ ollama rm <model_name>
 
 # Install a new ollama model
 ollama pull <model_name>
+ollama pull phi3   //we can see in env file
+
+<img width="703" height="208" alt="image" src="https://github.com/user-attachments/assets/803b8bb7-ba07-4bce-9a3f-5e874fb958e6" />
+
 
 # Run Ollama server
 ollama serve
+
+<img width="643" height="142" alt="image" src="https://github.com/user-attachments/assets/46c6696f-261f-4a65-a309-7f491366ac5c" />
+
 ```
