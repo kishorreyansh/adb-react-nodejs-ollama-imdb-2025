@@ -1,250 +1,3 @@
-// /* eslint-disable no-unused-vars */
-// // src/components/movie-list.jsx
-// import React, { useEffect, useRef, useState } from "react";
-// import { graphqlFetch } from "../api";
-
-// export default function MovieList({ onEdit }) {
-//   const [movies, setMovies] = useState([]);
-//   const [loading, setLoading] = useState(false);
-//   const [error, setError] = useState(null);
-//   const inFlight = useRef(false); // guard to avoid repeating requests
-//   const lastLoadTs = useRef(0);
-
-//   const idValue = (id) => {
-//     if (!id) return Number.MAX_SAFE_INTEGER;
-//     const m = String(id).match(/(\d+)/);
-//     return m ? parseInt(m[1], 10) : Number.MAX_SAFE_INTEGER;
-//   };
-
-//   const load = async (opts = { force: false }) => {
-//     // prevent concurrent loads
-//     if (inFlight.current) {
-//       // if caller asked to force, we let it proceed (rare)
-//       if (!opts.force) return;
-//     }
-
-//     // simple debounce: don't re-run within 500ms (prevents accidental bursts)
-//     const now = Date.now();
-//     if (!opts.force && now - lastLoadTs.current < 500) return;
-//     lastLoadTs.current = now;
-
-//     inFlight.current = true;
-//     setLoading(true);
-//     setError(null);
-
-//     try {
-//       const data = await graphqlFetch(`
-//         query {
-//           movies {
-//             ids
-//             title
-//             description
-//             year
-//             runtime
-//             rating
-//             votes
-//             revenue
-//             actors { name }
-//             directors { name }
-//             genres { type }
-//           }
-//         }
-//       `);
-
-//       let list = Array.isArray(data.movies) ? data.movies : [];
-//       list.sort((a, b) => idValue(a.ids) - idValue(b.ids));
-//       setMovies(list);
-//     } catch (err) {
-//       // show a readable error message (slice if huge)
-//       const m = String(err.message || err);
-//       setError(m.length > 2000 ? m.slice(0, 2000) + "…" : m);
-//       console.warn("MovieList load error:", err);
-//     } finally {
-//       inFlight.current = false;
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     load();
-//     // eslint-disable-next-line react-hooks/exhaustive-deps
-//   }, []);
-
-//   // replace existing remove(...) with this function
-//   const remove = async (id) => {
-//     if (!confirm("Delete this movie?")) return;
-
-//     try {
-//       const base = import.meta.env.VITE_API_URL || "http://localhost:4000";
-//       const url = `${base.replace(/\/$/, "")}/movies/${encodeURIComponent(id)}`;
-
-//       const resp = await fetch(url, {
-//         method: "DELETE",
-//         headers: { Accept: "application/json" },
-//       });
-
-//       // network-level failure
-//       if (!resp) throw new Error("No response from server");
-
-//       // parse JSON if possible
-//       let bodyText = "";
-//       try {
-//         bodyText = await resp.text();
-//       } catch (e) {
-//         /* ignore */
-//       }
-
-//       // try JSON parse
-//       let json;
-//       try {
-//         json = bodyText ? JSON.parse(bodyText) : null;
-//       } catch (e) {
-//         json = null;
-//       }
-
-//       if (resp.ok) {
-//         // REST returned 2xx
-//         if (json && json.ok) {
-//           // success
-//           await load({ force: true });
-//           return;
-//         } else {
-//           // 2xx but didn't delete (unexpected)
-//           const msg =
-//             (json && (json.message || JSON.stringify(json))) ||
-//             bodyText ||
-//             `Status ${resp.status}`;
-//           alert("Delete did not complete: " + msg);
-//           return;
-//         }
-//       } else {
-//         // non-2xx — show server-provided message if any
-//         const msg =
-//           (json && (json.message || JSON.stringify(json))) ||
-//           bodyText ||
-//           `Status ${resp.status}`;
-//         alert("Delete failed: " + msg);
-//         return;
-//       }
-//     } catch (err) {
-//       alert("Delete error: " + String(err.message || err));
-//       console.warn("Delete error details:", err);
-//     }
-//   };
-
-//   return (
-//     <div>
-//       <div
-//         style={{
-//           display: "flex",
-//           justifyContent: "space-between",
-//           alignItems: "center",
-//           marginBottom: 12,
-//         }}
-//       >
-//         <div>
-//           <h2 style={{ margin: "0 0 6px 0" }}>Movies</h2>
-//           <div className="small">Showing all movies (sorted by ID)</div>
-//         </div>
-//         <div>
-//           <button
-//             className="btn ghost"
-//             onClick={() => load()}
-//             disabled={inFlight.current}
-//             title={inFlight.current ? "Request in flight" : "Refresh"}
-//           >
-//             Refresh
-//           </button>
-//         </div>
-//       </div>
-
-//       {loading && <div className="small">Loading…</div>}
-
-//       {error && (
-//         <div
-//           style={{ color: "salmon", whiteSpace: "pre-wrap", marginBottom: 12 }}
-//         >
-//           {error}
-//         </div>
-//       )}
-
-//       {!loading && !error && (
-//         <div style={{ overflowX: "auto" }}>
-//           <table className="table wide" role="table">
-//             <thead>
-//               <tr>
-//                 <th>ID</th>
-//                 <th>Title</th>
-//                 <th>Description</th>
-//                 <th>Year</th>
-//                 <th>Runtime</th>
-//                 <th>Rating</th>
-//                 <th>Votes</th>
-//                 <th>Revenue</th>
-//                 <th>Actors</th>
-//                 <th>Directors</th>
-//                 <th>Genres</th>
-//                 <th>Actions</th>
-//               </tr>
-//             </thead>
-//             <tbody>
-//               {movies.map((m) => (
-//                 <tr key={m.ids}>
-//                   <td>{m.ids}</td>
-//                   <td style={{ fontWeight: 600 }}>{m.title}</td>
-//                   <td style={{ maxWidth: 260, whiteSpace: "normal" }}>
-//                     {m.description || "-"}
-//                   </td>
-//                   <td>{m.year ?? "-"}</td>
-//                   <td>{m.runtime ?? "-"}</td>
-//                   <td>{m.rating ?? "-"}</td>
-//                   <td>{m.votes ?? "-"}</td>
-//                   <td>{m.revenue ?? "-"}</td>
-//                   <td>
-//                     {(m.actors || []).map((a) => a.name).join(", ") || "-"}
-//                   </td>
-//                   <td>
-//                     {(m.directors || []).map((d) => d.name).join(", ") || "-"}
-//                   </td>
-//                   <td>
-//                     {(m.genres || []).map((g) => g.type).join(", ") || "-"}
-//                   </td>
-//                   <td>
-//                     <button
-//                       className="btn"
-//                       onClick={() => onEdit(m)}
-//                       style={{ marginRight: 8 }}
-//                     >
-//                       Edit
-//                     </button>
-//                     <button
-//                       className="btn"
-//                       onClick={() => remove(m.ids)}
-//                       style={{
-//                         background: "linear-gradient(90deg,#ff7b7b,#ff4b4b)",
-//                         color: "#04142b",
-//                       }}
-//                     >
-//                       Delete
-//                     </button>
-//                   </td>
-//                 </tr>
-//               ))}
-//               {movies.length === 0 && (
-//                 <tr>
-//                   <td colSpan={12} className="small">
-//                     No movies found.
-//                   </td>
-//                 </tr>
-//               )}
-//             </tbody>
-//           </table>
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
-
 // src/components/movie-list.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { graphqlFetch } from "../api";
@@ -471,7 +224,7 @@ export default function MovieList({ onEdit }) {
 
       {!loading && !error && (
         <div style={{ overflowX: "auto" }}>
-          <table className="table wide" role="table">
+          <table className="table wide" role="table" style={{ width: "100%" }}>
             <thead>
               <tr>
                 <th>ID</th>
@@ -511,23 +264,28 @@ export default function MovieList({ onEdit }) {
                     {(m.genres || []).map((g) => g.type).join(", ") || "-"}
                   </td>
                   <td>
-                    <button
-                      className="btn"
-                      onClick={() => onEdit(m)}
-                      style={{ marginRight: 8 }}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="btn"
-                      onClick={() => remove(m.ids)}
+                    <div
                       style={{
-                        background: "linear-gradient(90deg,#ff7b7b,#ff4b4b)",
-                        color: "#04142b",
+                        display: "flex",
+                        gap: "12px",
+                        alignItems: "center",
                       }}
                     >
-                      Delete
-                    </button>
+                      <button className="btn" onClick={() => onEdit(m)}>
+                        Edit
+                      </button>
+
+                      <button
+                        className="btn"
+                        onClick={() => remove(m.ids)}
+                        style={{
+                          background: "linear-gradient(90deg,#ff7b7b,#ff4b4b)",
+                          color: "#04142b",
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

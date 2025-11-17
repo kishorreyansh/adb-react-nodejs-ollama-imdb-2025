@@ -13,7 +13,7 @@ export default function App() {
     <div className="container">
       <header className="header">
         <div className="brand">
-          <div className="logo">MM</div>
+          <div className="logo">IMDB</div>
           <div>
             <div className="title">Movie Manager</div>
             <div className="subtitle">Clean UI • GraphQL + Ollama backend</div>
@@ -47,7 +47,7 @@ export default function App() {
                 setView("list");
                 return;
               }
-              setView("form");
+              setView("update");
             }}
           >
             Update
@@ -73,17 +73,20 @@ export default function App() {
 
       <main style={{ marginTop: 8 }}>
         {/* make this card the only scrolling area */}
-        <section className="card card-scroll" style={{ maxWidth: "1000px" }}>
+        <section
+          className="card card-scroll"
+          style={{ maxWidth: "100%", width: "100%" }}
+        >
           {view === "list" && (
             <MovieList
               onEdit={(m) => {
                 setEditingMovie(m);
-                setView("form");
+                setView("update");
               }}
             />
           )}
 
-          {view === "form" && (
+          {(view === "form" || view === "update") && (
             <MovieForm
               movie={editingMovie}
               onSaved={() => {

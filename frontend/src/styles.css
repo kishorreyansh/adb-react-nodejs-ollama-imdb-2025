@@ -1,4 +1,5 @@
 @charset "UTF-8";
+
 :root {
   --bg: #0f1720;
   --card: #0b1220;
@@ -9,41 +10,65 @@
   --gap: 16px;
   --text: #e6eef8;
 }
+
 * {
   box-sizing: border-box;
 }
+
+/* FIXED: Removed height:100% (responsible for half-screen issue) */
 html,
-body,
-#root {
-  height: 100%;
+body {
+  min-height: 100%;
 }
+
+#root {
+  min-height: 100%;
+  width: 100% !important;
+}
+
 body {
   margin: 0;
-  background: linear-gradient(180deg, #071021 0%, #07162a 100%);
-  color: var(--text);
+  padding: 24px;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI",
     Roboto, "Helvetica Neue", Arial;
+  background: linear-gradient(180deg, #071021 0%, #07162a 100%);
+  color: var(--text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  padding: 24px;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden !important;
 }
+
+/* ---- Container and Layout ---- */
 .container {
-  max-width: 1100px;
-  margin: 0 auto;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0;
+  padding: 0;
 }
+
+.main {
+  display: block;
+  width: 100%;
+}
+
+/* ---- Header ---- */
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--gap);
+  flex-wrap: wrap; /* Prevent nav clipping */
+  gap: 12px;
+  width: 100%;
   margin-bottom: 18px;
 }
+
 .brand {
   display: flex;
   align-items: center;
   gap: 12px;
 }
+
 .logo {
   width: 52px;
   height: 52px;
@@ -56,20 +81,25 @@ body {
   color: #042040;
   box-shadow: 0 6px 18px rgba(10, 12, 20, 0.6);
 }
+
 .title {
   font-size: 28px;
   font-weight: 700;
   letter-spacing: -0.02em;
 }
+
 .subtitle {
   color: var(--muted);
   font-size: 13px;
-  margin-top: 4px;
 }
+
+/* ---- Navigation ---- */
 .nav {
   display: flex;
+  flex-wrap: wrap; /* Allow wrapping */
   gap: 10px;
 }
+
 .btn {
   background: var(--glass);
   border: 1px solid rgba(255, 255, 255, 0.04);
@@ -79,20 +109,24 @@ body {
   cursor: pointer;
   font-weight: 600;
   font-size: 14px;
+  white-space: nowrap; /* Prevent button text breaking */
 }
+
 .btn.primary {
   background: linear-gradient(90deg, var(--accent), #4bd6ff);
   color: #04142b;
   border: none;
 }
+
 .btn.ghost {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.04);
 }
-.main {
-  display: block;
-}
+
+/* ---- Card ---- */
 .card {
+  width: 100% !important;
+  max-width: 100% !important;
   background: linear-gradient(
     180deg,
     rgba(255, 255, 255, 0.02),
@@ -104,53 +138,28 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
-/* Scroll only the card content; header/nav stay fixed */
+/* ---- Scrollable card content ---- */
 .card-scroll {
-  /* space for header + padding: adjust if your header height differs */
-  max-height: calc(100vh - 140px);
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-  padding-right: 8px; /* small padding to avoid content clipping under scrollbar */
+  width: 100% !important;
+  max-width: 100% !important;
+  max-height: calc(100vh - 160px); /* Space under header */
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
 }
 
-/* ensure inner pre blocks/wrapping behave within scroll area */
-.card-scroll .pre {
-  max-height: 60vh;
-  overflow: auto;
-}
-.table {
-  width: 100%;
-  border-collapse: collapse;
-}
-/* wide table support */
-.table.wide {
-  min-width: 1200px;
-  width: 100%;
-}
-.table th,
-.table td {
-  text-align: left;
-  padding: 10px 8px;
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.03);
-}
-.table th {
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 700;
-}
-.small {
-  font-size: 13px;
-  color: var(--muted);
-}
+/* ---- Form Fields ---- */
 .field {
   margin-bottom: 12px;
 }
+
 .label {
   font-size: 13px;
   color: var(--muted);
   margin-bottom: 6px;
   display: block;
 }
+
 .input,
 textarea {
   width: 100%;
@@ -159,40 +168,76 @@ textarea {
   border: 1px solid rgba(255, 255, 255, 0.04);
   border-radius: 8px;
   color: var(--text);
-  outline: none;
 }
+
 .input:focus,
 textarea:focus {
   box-shadow: 0 6px 18px rgba(100, 140, 255, 0.08);
   border-color: var(--accent);
 }
+
+/* ---- Rows and Columns ---- */
 .row {
   display: flex;
   gap: 10px;
 }
+
 .col {
   flex: 1;
 }
+
+/* ---- Code & Pre Blocks ---- */
 .pre {
   background: rgba(2, 6, 11, 0.5);
   padding: 12px;
   border-radius: 8px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono",
-    "Courier New", monospace;
+  font-family: ui-monospace, Menlo, Monaco, "Roboto Mono", monospace;
   font-size: 13px;
   color: #cfe8ff;
   overflow: auto;
   max-height: 320px;
 }
+
+/* ---- Tables ---- */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table.wide {
+  min-width: 1200px;
+  width: 100%;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.03);
+}
+
+.table th {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.small {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ---- Responsive ---- */
 @media (max-width: 980px) {
-  .main {
-    grid-template-columns: 1fr;
+  .row {
+    flex-direction: column;
   }
+
   .logo {
     width: 44px;
     height: 44px;
-    font-size: 14px;
   }
+
   .title {
     font-size: 22px;
   }
